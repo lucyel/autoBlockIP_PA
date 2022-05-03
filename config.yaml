@@ -1,0 +1,6 @@
+host:
+  ip: 127.0.0.1
+  remote_ip: 127.0.0.1
+  mail_server: 
+  sender: 
+  receiver: []
