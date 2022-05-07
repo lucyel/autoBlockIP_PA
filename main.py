@@ -29,7 +29,7 @@ def blockIP(ip):
     with open('autoblockIP_payload.xml', "w") as f:
         print(payload, file=f)
 
-    response = subprocess.run( ['curl', '-k', '-XPOST', f'https://{var['host']['pa_server']}/api/?type=user-id&key={var['host']['api_key']}', '--data-urlencode', 'cmd@autoblockIP_payload.xml'] )
+    response = subprocess.run( ['curl', '-k', '--noproxy', '"*"', '-XPOST', f'https://{var['host']['pa_server']}/api/?type=user-id&key={var['host']['api_key']}', '--data-urlencode', 'cmd@autoblockIP_payload.xml'] )
 
     if "success" in response:
         return True
