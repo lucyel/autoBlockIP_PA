@@ -1,4 +1,6 @@
 host:
+  pa_server: 
+  api_key: 
   ip: 127.0.0.1
   remote_ip: 127.0.0.1
   mail_server: 

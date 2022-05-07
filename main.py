@@ -1,7 +1,7 @@
 import requests
-import smtplib
 import urllib3
 import yaml
+import subprocess
 
 from flask import Flask,request,json, abort
 from yaml.loader import SafeLoader
@@ -11,7 +11,6 @@ with open("config.yaml", "r") as ymlfile:
 
 urllib3.disable_warnings()
 
-# smtpObj = smtplib.SMTP('var['host']['mail_server']', 587)
 
 def blockIP(ip):
     payload = f'''<uid-message>
@@ -26,38 +25,16 @@ def blockIP(ip):
         </register>
     </payload>
 </uid-message>'''
-    #payload = f'''<?xml version='1.0' encoding='utf-8'?><uid-message><type>update</type><payload><register><entryip="{ip}"persistent="1"><tag><membertimeout="0">malicious</member></tag></entry></register></payload></uid-message>'''
 
-    headers = {'Content-Type': 'application/x-www-form-urlencoded'}
-    # headers = {'Content-Type': 'application/xml'}
-    # headers = {'Content-Type': 'text/xml'}
-    # response = requests.POST('https://<your_firewall_url>/api/?type=user-id&key=<your_api_key>', headers=headers, data=payload, verify=False)
+    with open('autoblockIP_payload.xml', "w") as f:
+        print(payload, file=f)
 
-    success_message = f"""From: From SIEM <{var['host']['sender']}>
-To: To Admin <{var['host']['receiver']}>
-Subject: IP block successful
+    response = subprocess.run( ['curl', '-k', '-XPOST', f'https://{var['host']['pa_server']}/api/?type=user-id&key={var['host']['api_key']}', '--data-urlencode', 'cmd@autoblockIP_payload.xml'] )
 
-Dear admin,
-IP {ip} got blocked successful.
-"""
-
-    fail_message = f"""From: From SIEM <{var['host']['sender']}>
-To: To Admin <{var['host']['receiver']}>
-Subject: Fail to block IP
-
-Dear admin,
-Tools fail to block IP {ip}.
-Please check.
-"""
-
-    #if "success" in response:
-    #    smtpObj.sendmail(var['host']['sender'], var['host']['receiver'], success_message)
-    #    return True
-    #else:
-    #    smtpObj.sendmail(var['host']['sender'], var['host']['receiver'], fail_message)
-    #    return False
-    print(payload)
-    return True
+    if "success" in response:
+        return True
+    else:
+        return False
 
 app = Flask(__name__)
 
